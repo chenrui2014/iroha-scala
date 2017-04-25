@@ -12,9 +12,10 @@ lazy val libraries = Seq(
   "org.scala-lang" % "scala-library" % "2.11.8",
   "org.scala-lang" % "scala-reflect" % "2.11.8",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
-  "io.grpc" % "grpc-netty" % "1.0.1",
-  "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.compiler.Version.scalapbVersion,
-  "com.trueaccord.scalapb" %% "scalapb-runtime" % com.trueaccord.scalapb.compiler.Version.scalapbVersion % "protobuf",
+  "io.grpc" % "grpc-core" % "1.2.0",
+  "io.grpc" % "grpc-netty" % "1.2.0",
+  "io.grpc" % "grpc-stub" % "1.2.0",
+  "commons-io" % "commons-io" % "2.5",
   "org.bouncycastle" % "bcpg-jdk15on" % "1.51",
   "net.i2p.crypto" % "eddsa" % "0.1.0",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
@@ -23,7 +24,7 @@ lazy val libraries = Seq(
 lazy val settings = Seq(
   organization := "org.hyperledger",
   scalaVersion := PROJECT_SCALA_VERSION,
-  javacOptions ++= Seq("-source", "1.8", "-target", "1.7", "-encoding", "UTF-8"),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8"),
   javaOptions ++= Seq("-Xmx1G"),
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
@@ -76,14 +77,27 @@ lazy val settings = Seq(
     </developers>
 )
 
-lazy val irohaScala = (project in file("."))
+lazy val flatbuffers = (project in file("flatbuffers"))
+  .settings(name := "flatbuffers")
+  .settings(settings: _*)
+  .settings(publish := {})
+
+lazy val schema = (project in file("schema")).dependsOn(flatbuffers)
+  .settings(name := "schema")
+  .settings(settings: _*)
+  //.settings(compileJavaSchemaTask)
+  //.settings(compile <<= compile in Compile dependsOn compileJavaSchema)
+  .settings(javaSource in Compile := baseDirectory.value / "src" / "main" / "gen-java")
+
+lazy val irohaScala = (project in file("iroha-scala")).dependsOn(schema, flatbuffers)
   .settings(settings: _*)
   .settings(name := "iroha-scala")
-  .enablePlugins(ProtocPlugin)
-  .settings(
-    PB.targets in Compile := Seq(
-      scalapb.gen() -> (sourceManaged in Compile).value
-    ),
-    PB.protoSources in Compile := Seq(file("protos"))
-  )
 
+lazy val compileJavaSchema = taskKey[Unit]("Run flatc compiler to generate Java classes for schema")
+lazy val compileJavaSchemaTask = compileJavaSchema := {
+  val schemaFiles = "ls -1 schema/flatbuffers/".!!.split("\n")
+  schemaFiles.filter(_.endsWith(".fbs")).foreach { schema =>
+    val result = s"flatc -j -o schema/src/main/gen-java schema/flatbuffers/$schema".!!
+    println(s"*** Generated Java classes from FlatBuffer schema $schema.  Results: $result")
+  }
+}

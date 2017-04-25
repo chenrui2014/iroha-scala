@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  configdiscovery:
+    image: warchantua/configdiscovery
+    command: "4" # number of nodes (actually, 4 by default. But it is good to explicitly show)
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+
+  iroha:
+    image: hyperledger/iroha-docker:fb #:develop
+    depends_on:
+      - configdiscovery
+    expose:
+      - 1204
+      - 50051
+    links:
+      - configdiscovery
+    environment:
+      - IROHA_HOME=/iroha
+    command: /iroha/scripts/run.sh
+
+  iroha0:
+    image: hyperledger/iroha-docker:fb #:develop
+    depends_on:
+      - configdiscovery
+    ports:
+      - 1204:1204
+      - 50051:50051
+    expose:
+      - 1204
+      - 50051
+    links:
+      - configdiscovery
+    environment:
+      - IROHA_HOME=/iroha
+    command: /iroha/scripts/run.sh
+
