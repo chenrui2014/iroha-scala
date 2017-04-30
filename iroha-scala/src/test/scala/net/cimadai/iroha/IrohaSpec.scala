@@ -23,8 +23,19 @@ class IrohaSpec extends FunSpec {
       assert(Iroha.verify(keyPair, Iroha.sign(keyPair, message), message), true)
     }
 
-    def createAccountAddTx(alias: String, attachmentMime: String, attachmentData: Array[Byte]): Array[Byte] = {
-      val keyPair = Iroha.createKeyPair()
+    def createAttachment(fbb: FlatBufferBuilder, mime: String, data: Array[Byte]): Int = {
+      val attachMimeOffset = fbb.createString(mime)
+      val attachDataOffset = fbb.createByteVector(data)
+      Attachment.createAttachment(fbb, attachMimeOffset, attachDataOffset)
+    }
+
+    def createSignature(fbb: FlatBufferBuilder, data: Array[Byte], keyPair: Iroha.Ed25519KeyPair, pubKeyOffset: Int): Int = {
+      val signature = Iroha.sign(keyPair, data)
+      val sigSignatureOffset = fbb.createByteVector(signature)
+      Signature.createSignature(fbb, pubKeyOffset, sigSignatureOffset, System.currentTimeMillis())
+    }
+
+    def createAccountAddTx(keyPair: Iroha.Ed25519KeyPair, alias: String, attachmentMime: String, attachmentData: Array[Byte]): Array[Byte] = {
       val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
 
       val fbb = new FlatBufferBuilder(0)
@@ -32,31 +43,134 @@ class IrohaSpec extends FunSpec {
       val aliasOffset = fbb.createString(alias)
       val pubkeyListOffset = fbb.createVectorOfTables(Array(pubKeyOffset))
       val accountOffset = Account.createAccount(fbb, pubKeyOffset, aliasOffset, pubkeyListOffset, 0)
-      val accountAddOffset = AccountAdd.createAccountAdd(fbb, accountOffset)
+      val commandOffset = AccountAdd.createAccountAdd(fbb, accountOffset)
 
-      val attachMimeOffset = fbb.createString(attachmentMime)
-      val attachDataOffset = fbb.createByteVector(attachmentData)
-      val attachmentOffset = Attachment.createAttachment(fbb, attachMimeOffset, attachDataOffset)
+      val attachmentOffset = createAttachment(fbb, attachmentMime, attachmentData)
 
-      val signature = Iroha.sign(keyPair, alias.getBytes())
-      val sigSignatureOffset = fbb.createByteVector(signature)
-      val sigOffset = Signature.createSignature(fbb, pubKeyOffset, sigSignatureOffset, System.currentTimeMillis())
+      val sigOffset = createSignature(fbb, alias.getBytes, keyPair, pubKeyOffset)
 
       val signatureListOffset = fbb.createVectorOfTables(Array(sigOffset))
+
       val hashOffset = fbb.createByteVector(base64Encoder.encode(alias.getBytes))
 
       fbb.finish(Transaction.createTransaction(
-        fbb, pubKeyOffset, Command.AccountAdd, accountAddOffset, signatureListOffset, hashOffset, attachmentOffset))
+        fbb, pubKeyOffset, Command.AccountAdd, commandOffset, signatureListOffset, hashOffset, attachmentOffset))
 
       fbb.sizedByteArray()
     }
 
-    it("account creation run right") {
-      val txBytes = createAccountAddTx("User1", "", Array(0x0.toByte))
-      println("<send>: " + txBytes.map("%02X" format _).mkString)
-      val response = sumeragiGrpc.torii(txBytes)
+    def createAssetCreateTx(keyPair: Iroha.Ed25519KeyPair, assetName: String, domain: String, ledger: String): Array[Byte] = {
+      val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
+
+      val fbb = new FlatBufferBuilder(0)
+      val pubKeyOffset = fbb.createString(pubKeyBase64)
+      val assetNameOffset = fbb.createString(assetName)
+      val assetDomainOffset = fbb.createString(domain)
+      val assetLedgerOffset = fbb.createString(ledger)
+
+      val attachmentOffset = createAttachment(fbb, "", Array(0x00.toByte))
+
+      val sigOffset = createSignature(fbb, assetName.getBytes, keyPair, pubKeyOffset)
+
+      val signatureListOffset = fbb.createVectorOfTables(Array(sigOffset))
+
+      val hashOffset = fbb.createByteVector(base64Encoder.encode(assetName.getBytes))
+
+      val commandOffset = AssetCreate.createAssetCreate(fbb, assetNameOffset, assetDomainOffset, assetLedgerOffset, pubKeyOffset)
+
+      fbb.finish(Transaction.createTransaction(
+        fbb, pubKeyOffset, Command.AssetCreate, commandOffset, signatureListOffset, hashOffset, attachmentOffset))
+
+      fbb.sizedByteArray()
+    }
+
+    def createAssetAddTx(keyPair: Iroha.Ed25519KeyPair, assetName: String, domain: String, ledger: String, description: String, amount: Long, precision: Int): Array[Byte] = {
+      val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
+
+      val fbb = new FlatBufferBuilder(0)
+      val pubKeyOffset = fbb.createString(pubKeyBase64)
+
+      val attachmentOffset = createAttachment(fbb, "", Array(0x00.toByte))
+
+      val sigOffset = createSignature(fbb, assetName.getBytes, keyPair, pubKeyOffset)
+
+      val signatureListOffset = fbb.createVectorOfTables(Array(sigOffset))
+
+      val hashOffset = fbb.createByteVector(base64Encoder.encode(assetName.getBytes))
+
+      val assetOffset = fbb.createByteVector(createAssetData(assetName, domain, ledger,description, amount, precision))
+
+      val commandOffset = AssetAdd.createAssetAdd(fbb, pubKeyOffset, assetOffset)
+
+      fbb.finish(Transaction.createTransaction(
+        fbb, pubKeyOffset, Command.AssetAdd, commandOffset, signatureListOffset, hashOffset, attachmentOffset))
+
+      fbb.sizedByteArray()
+    }
+
+    def createAssetData(assetName: String, domain: String, ledger: String, description: String, amount: Long, precision: Int): Array[Byte] = {
+      val fbb = new FlatBufferBuilder(0)
+      val assetNameOffset = fbb.createString(assetName)
+      val assetDomainOffset = fbb.createString(domain)
+      val assetLedgerOffset = fbb.createString(ledger)
+      val assetDescriptionOffset = fbb.createString(description)
+      val currencyOffset = Currency.createCurrency(fbb, assetNameOffset, assetDomainOffset, assetLedgerOffset, assetDescriptionOffset, amount, precision)
+      val assetOffset = Asset.createAsset(fbb, AnyAsset.Currency, currencyOffset)
+      fbb.finish(assetOffset)
+      fbb.sizedByteArray()
+    }
+
+    def createAssetTransferTx(keyPair: Iroha.Ed25519KeyPair, receiver: String, assetName: String, domain: String, ledger: String, description: String, amount: Long, precision: Int): Array[Byte] = {
+      val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
+
+      val fbb = new FlatBufferBuilder(0)
+      val senderOffset = fbb.createString(pubKeyBase64)
+      val receiverOffset = fbb.createString(receiver)
+
+      val attachmentOffset = createAttachment(fbb, "", Array(0x00.toByte))
+
+      val sigOffset = createSignature(fbb, assetName.getBytes, keyPair, senderOffset)
+
+      val signatureListOffset = fbb.createVectorOfTables(Array(sigOffset))
+
+      val hashOffset = fbb.createByteVector(base64Encoder.encode(assetName.getBytes))
+
+      val assetOffset = fbb.createByteVector(createAssetData(assetName, domain, ledger,description, amount, precision))
+
+      val commandOffset = AssetTransfer.createAssetTransfer(fbb, assetOffset, senderOffset, receiverOffset)
+
+      fbb.finish(Transaction.createTransaction(
+        fbb, senderOffset, Command.AssetTransfer, commandOffset, signatureListOffset, hashOffset, attachmentOffset))
+
+      fbb.sizedByteArray()
+    }
+
+    def sendTransaction(bytes: Array[Byte]): Unit = {
+      println("<send>: " + bytes.map("%02X" format _).mkString)
+      val response = sumeragiGrpc.torii(bytes)
       println("<recv>: " + response.getByteBuffer.array().map("%02X" format _).mkString)
       println(s"<resp>: code = ${response.code()}, message = ${response.message()}")
+    }
+
+    it("account creation run right") {
+
+      val keyPair1 = Iroha.createKeyPair()
+      val keyPair2 = Iroha.createKeyPair()
+
+      sendTransaction(createAccountAddTx(keyPair1, "User1", "", Array(0x0.toByte)))
+
+      sendTransaction(createAssetCreateTx(keyPair1, "APC", "apdev", "jp.co.altplus"))
+
+      sendTransaction(createAssetAddTx(keyPair1, "APC", "apdev", "jp.co.altplus", "This is internal asset.", 100, 2))
+
+      sendTransaction(createAccountAddTx(keyPair2, "User2", "", Array(0x0.toByte)))
+
+      sendTransaction(createAssetCreateTx(keyPair2, "APC", "apdev", "jp.co.altplus"))
+
+      sendTransaction(createAssetAddTx(keyPair2, "APC", "apdev", "jp.co.altplus", "This is internal asset.", 0, 2))
+
+      val pubKey2 = base64Encoder.encodeToString(keyPair2.publicKey.getAbyte)
+      sendTransaction(createAssetTransferTx(keyPair1, pubKey2, "APC", "apdev", "jp.co.altplus", "This is internal asset.", 10, 2))
 
 //      println(reTx.creatorPubKey())
 //      val tblObj = reTx.command(new Table)
