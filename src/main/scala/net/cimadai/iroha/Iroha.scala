@@ -2,9 +2,6 @@ package net.cimadai.iroha
 
 import java.security.MessageDigest
 
-import Api.api.BaseObject.Value.{ValueInt, ValueString}
-import Api.api._
-import net.cimadai.iroha.MethodType.MethodType
 import net.i2p.crypto.eddsa.spec.{EdDSANamedCurveTable, EdDSAPrivateKeySpec, EdDSAPublicKeySpec}
 import net.i2p.crypto.eddsa.{EdDSAEngine, EdDSAPrivateKey, EdDSAPublicKey}
 
@@ -61,45 +58,45 @@ object Iroha {
     }
   }
 
-  def createTransaction(methodType: MethodType, publicKeyBase64: String): Transaction = {
-    Transaction(
-      txSignatures = Seq.empty,
-      `type` = methodType.name,
-      senderPubkey = publicKeyBase64,
-      timestamp = System.currentTimeMillis(),
-      asset = None,
-      simpleAsset = None,
-      domain = None,
-      account = None,
-      peer = None
-    )
-  }
-
-  def createAccountQuery(publicKeyBase64: String): Query = {
-    Query(
-      `type` = "account",
-      senderPubkey = publicKeyBase64
-    )
-  }
-
-  def createAssetQuery(publicKeyBase64: String, assetName: String): Query = {
-    Query(
-      `type` = "asset",
-      value = Map("name" -> BaseObject(ValueString(assetName))),
-      senderPubkey = publicKeyBase64
-    )
-  }
-
-  def createAccount(publicKeyBase64: String, accountName: String, assetNames: Seq[String]): Account = {
-    Account(publicKey = publicKeyBase64, name = accountName, assets = assetNames)
-  }
-
-  def createAsset(assetName: String, amount: Long): Asset = {
-    Asset(name = assetName, value = Map("value" -> BaseObject(ValueInt(amount))))
-  }
-
-  def createAsset(assetName: String, amount: Long, data: Map[String, BaseObject]): Asset = {
-    Asset(name = assetName, value = data ++ Map("value" -> BaseObject(ValueInt(amount))))
-  }
+//  def createTransaction(methodType: MethodType, publicKeyBase64: String): Transaction = {
+//    Transaction(
+//      txSignatures = Seq.empty,
+//      `type` = methodType.name,
+//      senderPubkey = publicKeyBase64,
+//      timestamp = System.currentTimeMillis(),
+//      asset = None,
+//      simpleAsset = None,
+//      domain = None,
+//      account = None,
+//      peer = None
+//    )
+//  }
+//
+//  def createAccountQuery(publicKeyBase64: String): Query = {
+//    Query(
+//      `type` = "account",
+//      senderPubkey = publicKeyBase64
+//    )
+//  }
+//
+//  def createAssetQuery(publicKeyBase64: String, assetName: String): Query = {
+//    Query(
+//      `type` = "asset",
+//      value = Map("name" -> BaseObject(ValueString(assetName))),
+//      senderPubkey = publicKeyBase64
+//    )
+//  }
+//
+//  def createAccount(publicKeyBase64: String, accountName: String, assetNames: Seq[String]): Account = {
+//    Account(publicKey = publicKeyBase64, name = accountName, assets = assetNames)
+//  }
+//
+//  def createAsset(assetName: String, amount: Long): Asset = {
+//    Asset(name = assetName, value = Map("value" -> BaseObject(ValueInt(amount))))
+//  }
+//
+//  def createAsset(assetName: String, amount: Long, data: Map[String, BaseObject]): Asset = {
+//    Asset(name = assetName, value = data ++ Map("value" -> BaseObject(ValueInt(amount))))
+//  }
 }
 

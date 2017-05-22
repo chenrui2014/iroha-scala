@@ -2,19 +2,18 @@ name := "iroha-scala"
 
 version := "1.0.0"
 
-val PROJECT_SCALA_VERSION = "2.11.8"
+val PROJECT_SCALA_VERSION = "2.11.11"
 
 scalaVersion := PROJECT_SCALA_VERSION
 
 useGpg in GlobalScope := true
 
 lazy val libraries = Seq(
-  "org.scala-lang" % "scala-library" % "2.11.8",
-  "org.scala-lang" % "scala-reflect" % "2.11.8",
-  "org.scala-lang.modules" %% "scala-xml" % "1.0.4",
-  "io.grpc" % "grpc-netty" % "1.0.1",
-  "com.trueaccord.scalapb" %% "scalapb-runtime-grpc" % com.trueaccord.scalapb.compiler.Version.scalapbVersion,
-  "com.trueaccord.scalapb" %% "scalapb-runtime" % com.trueaccord.scalapb.compiler.Version.scalapbVersion % "protobuf",
+  "com.wordnik.swagger" %% "swagger-async-httpclient" % "0.3.5",
+  "joda-time" % "joda-time" % "2.3",
+  "org.joda" % "joda-convert" % "1.3.1",
+  "ch.qos.logback" % "logback-classic" % "1.0.13" % "provided",
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test",
   "org.bouncycastle" % "bcpg-jdk15on" % "1.51",
   "net.i2p.crypto" % "eddsa" % "0.1.0",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
@@ -79,11 +78,4 @@ lazy val settings = Seq(
 lazy val irohaScala = (project in file("."))
   .settings(settings: _*)
   .settings(name := "iroha-scala")
-  .enablePlugins(ProtocPlugin)
-  .settings(
-    PB.targets in Compile := Seq(
-      scalapb.gen() -> (sourceManaged in Compile).value
-    ),
-    PB.protoSources in Compile := Seq(file("protos"))
-  )
 
