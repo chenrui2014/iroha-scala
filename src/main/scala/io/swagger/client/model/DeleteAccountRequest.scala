@@ -1,5 +1,6 @@
 package io.swagger.client.model
 
-case class DeleteAccountRequest (
+
+case class DeleteAccountRequest(
   meta_transaction: TransactionRequest
 )

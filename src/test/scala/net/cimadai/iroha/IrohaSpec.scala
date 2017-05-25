@@ -29,67 +29,66 @@ class IrohaSpec extends FunSpec {
       val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
 
       {
-        val future = client.account.accountGetAll()
-        val ret = Await.result(future, Duration.Inf)
+        val ret = Await.result(client.account.accountGetAll(), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = DeleteAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString))
-        val ret = client.account.accountDeleteByUsername("domain", "username", request)
+        val ret = Await.result(client.account.accountDeleteByUsername("domain", "username", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = DeleteAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString))
-        val ret = client.account.accountDeleteByUsernameFromDefaultDomain("username", request)
+        val ret = Await.result(client.account.accountDeleteByUsernameFromDefaultDomain("username", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = DeleteAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString))
-        val ret = client.account.accountDeleteByUUID("uuid", request)
+        val ret = Await.result(client.account.accountDeleteByUUID("abcd0123456789012345678901234567", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
-        val ret = client.account.accountGetByUsername("domain", "username")
+        val ret = Await.result(client.account.accountGetByUsername("domain", "username"), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
-        val ret = client.account.accountGetByUsernameFromDefaultDomain("username")
+        val ret = Await.result(client.account.accountGetByUsernameFromDefaultDomain("username"), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
-        val ret = client.account.accountGetByUUID("uuid")
-        assert(ret != null, "must be right")
-      }
-
-      {
-        val request = UpdateAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString), "username")
-        val ret = client.account.accountUpdateByUsernameFromDefaultDomain("username", request)
+        val ret = Await.result(client.account.accountGetByUUID("abcd0123456789012345678901234567"), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = UpdateAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString), "username")
-        val ret = client.account.accountUpdateByUsername("domain", "username", request)
+        val ret = Await.result(client.account.accountUpdateByUsernameFromDefaultDomain("username", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = UpdateAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString), "username")
-        val ret = client.account.accountUpdateByUUID("uuid", request)
+        val ret = Await.result(client.account.accountUpdateByUsername("domain", "username", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
-        val account = Account(1, List(pubKeyBase64), "user1", pubKeyBase64)
+        val request = UpdateAccountRequest(TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString), "username")
+        val ret = Await.result(client.account.accountUpdateByUUID("abcd0123456789012345678901234567", request), Duration.Inf)
+        assert(ret != null, "must be right")
+      }
+
+      {
+        val account = AccountPayload(1, List(pubKeyBase64), Some("user1"), "abcd0123456789012345678901234567")
         val request = AddAccountRequest(account, TransactionRequest(pubKeyBase64, "test-signature", System.currentTimeMillis().toString))
-        val ret = client.account.accountAdd(request)
-        assert(ret != null, "must be right")
+        val ret = Await.result(client.account.accountAdd(request), Duration.Inf)
+        assert(ret.code == 0, "must be right")
       }
     }
 
@@ -98,38 +97,38 @@ class IrohaSpec extends FunSpec {
       val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
 
       {
-        val currency = Currency(description = Some("This is test"), domain_name = "com.example", ledger_name = "testledger", name = "TEST", value = 100.0)
+        val currency = CurrencyPayload(description = Some("This is test"), domain_name = "com.example", ledger_name = "testledger", name = "TEST", value = 100.0)
         val request = CreateCurrencyRequest(pubKeyBase64, currency, "signature", "target", System.currentTimeMillis().toString)
-        val ret = client.currency.currencyAdd(request)
+        val ret = Await.result(client.currency.currencyAdd(request), Duration.Inf)
+        assert(ret.code == 0, "must be right")
+      }
+
+      {
+        val request = CurrencyValueRequest(pubKeyBase64, "signature", "target", System.currentTimeMillis().toString, 200.0)
+        val ret = Await.result(client.currency.currencyAddValue("currency_uri", request), Duration.Inf)
+        assert(ret != null, "must be right")
+      }
+
+      {
+        val ret = Await.result(client.currency.currencyGetAll(pubKeyBase64, "currency_uri", "target"), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = CurrencyValueRequest(pubKeyBase64, "signature", "target", System.currentTimeMillis().toString, 200.0)
-        val ret = client.currency.currencyAddValue("currency_uri", request)
-        assert(ret != null, "must be right")
-      }
-
-      {
-        val ret = client.currency.currencyGetAll(pubKeyBase64, "currency_uri", "target")
-        assert(ret != null, "must be right")
-      }
-
-      {
-        val request = CurrencyValueRequest(pubKeyBase64, "signature", "target", System.currentTimeMillis().toString, 200.0)
-        val ret = client.currency.currencySubtractValue("currency_uri", request)
+        val ret = Await.result(client.currency.currencySubtractValue("currency_uri", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = CurrencyTransferRequest(pubKeyBase64, "receiver", "sender", "signature", "target", System.currentTimeMillis().toString, 200.0)
-        val ret = client.currency.currencyTransfer("currency_uri", request)
+        val ret = Await.result(client.currency.currencyTransfer("currency_uri", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = UpdateCurrencyRequest(pubKeyBase64, "description", "signature", System.currentTimeMillis().toString)
-        val ret = client.currency.currencyUpdate("currency_uri", request)
+        val ret = Await.result(client.currency.currencyUpdate("currency_uri", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
     }
@@ -142,7 +141,7 @@ class IrohaSpec extends FunSpec {
         // TODO: Why quorum is Long? Max quorum is 64...
         // TODO: Why timestamp is String? This should be Long.
         val request = UpdateQuorumRequest(pubKeyBase64, 2, "signature", System.currentTimeMillis().toString)
-        val ret = client.quorum.quorumUpdate("uuid", request)
+        val ret = Await.result(client.quorum.quorumUpdate("abcd0123456789012345678901234567", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
     }
@@ -153,18 +152,18 @@ class IrohaSpec extends FunSpec {
 
       {
         val request = SignatoryRequest(pubKeyBase64, List("sig1", "sig2"), "signature", System.currentTimeMillis().toString)
-        val ret = client.signatories.signatoriesAdd("uuid", request)
+        val ret = Await.result(client.signatories.signatoriesAdd("abcd0123456789012345678901234567", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
         val request = DeleteSignatoryRequest(pubKeyBase64, "signature", System.currentTimeMillis().toString)
-        val ret = client.signatories.signatoriesDelete("sig", "uuid", request)
+        val ret = Await.result(client.signatories.signatoriesDelete("sig", "abcd0123456789012345678901234567", request), Duration.Inf)
         assert(ret != null, "must be right")
       }
 
       {
-        val ret = client.signatories.signatoriesGetAll("uuid")
+        val ret = Await.result(client.signatories.signatoriesGetAll("abcd0123456789012345678901234567"), Duration.Inf)
         assert(ret != null, "must be right")
       }
     }
@@ -174,7 +173,7 @@ class IrohaSpec extends FunSpec {
       val pubKeyBase64 = base64Encoder.encodeToString(keyPair.publicKey.getAbyte)
 
       {
-        val ret = client.transactions.transactionsGetAll(pubKeyBase64, "currency_uri", "target")
+        val ret = Await.result(client.transactions.transactionsGetAll(pubKeyBase64, "currency_uri", "target"), Duration.Inf)
         assert(ret != null, "must be right")
       }
 

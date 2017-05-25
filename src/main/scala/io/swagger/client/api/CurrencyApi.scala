@@ -1,21 +1,16 @@
 package io.swagger.client.api
 
-import io.swagger.client.model.CreateCurrencyRequest
-import io.swagger.client.model.Currency
-import io.swagger.client.model.CurrencyTransferRequest
-import io.swagger.client.model.CurrencyValueRequest
-import io.swagger.client.model.DeleteCurrencyRequest
-import io.swagger.client.model.Message
-import io.swagger.client.model.UpdateCurrencyRequest
 import com.wordnik.swagger.client._
+import io.swagger.client.model._
+
+import scala.collection.mutable
 import scala.concurrent.Future
-import collection.mutable
 
 class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiClient(client, config) {
 
   def currencyAdd(payload: CreateCurrencyRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CreateCurrencyRequest]): Future[Message] = {
     // create path and map variables
-    val path = addFmt("/currency")
+    val path = (addFmt("/currency"))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -30,10 +25,10 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencyAddValue(currencyUri: String,
-      payload: CurrencyValueRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyValueRequest]): Future[Message] = {
+    payload: CurrencyValueRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyValueRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}/add")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -50,10 +45,10 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencyDelete(currencyUri: String,
-      payload: DeleteCurrencyRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteCurrencyRequest]): Future[Message] = {
+    payload: DeleteCurrencyRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteCurrencyRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -70,13 +65,13 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencyGetAll(creatorPubkey: String,
-      currencyUri: String,
-      target: String,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Currency]): Future[Currency] = {
+    currencyUri: String,
+    target: String,
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Currency]): Future[Currency] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -90,8 +85,8 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
 
     queryParams += "creator_pubkey" -> creatorPubkey.toString
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
     queryParams += "target" -> target.toString
 
@@ -102,10 +97,10 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencySubtractValue(currencyUri: String,
-      payload: CurrencyValueRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyValueRequest]): Future[Message] = {
+    payload: CurrencyValueRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyValueRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}/subtract")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -122,10 +117,10 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencyTransfer(currencyUri: String,
-      payload: CurrencyTransferRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyTransferRequest]): Future[Message] = {
+    payload: CurrencyTransferRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[CurrencyTransferRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}/transfer")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -142,10 +137,10 @@ class CurrencyApi(client: TransportClient, config: SwaggerConfig) extends ApiCli
   }
 
   def currencyUpdate(currencyUri: String,
-      payload: UpdateCurrencyRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateCurrencyRequest]): Future[Message] = {
+    payload: UpdateCurrencyRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateCurrencyRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/currency/{currency_uri}")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]

@@ -1,20 +1,18 @@
 package io.swagger.client.api
 
-import io.swagger.client.model.DeleteSignatoryRequest
-import io.swagger.client.model.Message
-import io.swagger.client.model.Signatories
-import io.swagger.client.model.SignatoryRequest
 import com.wordnik.swagger.client._
+import io.swagger.client.model.{DeleteSignatoryRequest, Message, Signatories, SignatoryRequest}
+
+import scala.collection.mutable
 import scala.concurrent.Future
-import collection.mutable
 
 class SignatoriesApi(client: TransportClient, config: SwaggerConfig) extends ApiClient(client, config) {
 
   def signatoriesAdd(uuid: String,
-      payload: SignatoryRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[SignatoryRequest]): Future[Message] = {
+    payload: SignatoryRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[SignatoryRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}/signatories")
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -31,12 +29,12 @@ class SignatoriesApi(client: TransportClient, config: SwaggerConfig) extends Api
   }
 
   def signatoriesDelete(sig: String,
-      uuid: String,
-      payload: DeleteSignatoryRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteSignatoryRequest]): Future[Message] = {
+    uuid: String,
+    payload: DeleteSignatoryRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteSignatoryRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}/signatories/{sig}")
-        replaceAll ("\\{" + "sig" + "\\}",sig.toString)
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "sig" + "\\}", sig.toString)
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -55,12 +53,12 @@ class SignatoriesApi(client: TransportClient, config: SwaggerConfig) extends Api
   }
 
   def signatoriesGetAll(uuid: String,
-      creatorPubkey: Option[String] = None,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Signatories]): Future[Signatories] = {
+    creatorPubkey: Option[String] = None,
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Signatories]): Future[Signatories] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}/signatories")
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -69,12 +67,12 @@ class SignatoriesApi(client: TransportClient, config: SwaggerConfig) extends Api
     if (uuid == null) throw new Exception("Missing required parameter 'uuid' when calling SignatoriesApi->signatoriesGetAll")
 
     creatorPubkey match {
-    case Some(param) => queryParams += "creator_pubkey" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "creator_pubkey" -> param.toString
+      case _ => queryParams
     }
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
 
     val resFuture = client.submit("GET", path, queryParams.toMap, headerParams.toMap, "")

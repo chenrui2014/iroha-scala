@@ -1,20 +1,21 @@
 package io.swagger.client.api
 
-import io.swagger.client.model.Transactions
 import com.wordnik.swagger.client._
+import io.swagger.client.model.Transactions
+
+import scala.collection.mutable
 import scala.concurrent.Future
-import collection.mutable
 
 class TransactionsApi(client: TransportClient, config: SwaggerConfig) extends ApiClient(client, config) {
 
   def transactionsGetAll(creatorPubkey: String,
-      currencyUri: String,
-      target: String,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Transactions]): Future[Transactions] = {
+    currencyUri: String,
+    target: String,
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Transactions]): Future[Transactions] = {
     // create path and map variables
     val path = (addFmt("/transactions/{currency_uri}")
-        replaceAll ("\\{" + "currency_uri" + "\\}",currencyUri.toString))
+      replaceAll("\\{" + "currency_uri" + "\\}", currencyUri.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -28,8 +29,8 @@ class TransactionsApi(client: TransportClient, config: SwaggerConfig) extends Ap
 
     queryParams += "creator_pubkey" -> creatorPubkey.toString
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
     queryParams += "target" -> target.toString
 

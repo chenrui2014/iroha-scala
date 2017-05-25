@@ -1,20 +1,16 @@
 package io.swagger.client.api
 
-import io.swagger.client.model.Account
-import io.swagger.client.model.Accounts
-import io.swagger.client.model.AddAccountRequest
-import io.swagger.client.model.DeleteAccountRequest
-import io.swagger.client.model.Message
-import io.swagger.client.model.UpdateAccountRequest
 import com.wordnik.swagger.client._
+import io.swagger.client.model._
+
+import scala.collection.mutable
 import scala.concurrent.Future
-import collection.mutable
 
 class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClient(client, config) {
 
   def accountAdd(payload: AddAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[AddAccountRequest]): Future[Message] = {
     // create path and map variables
-    val path = addFmt("/accounts")
+    val path = (addFmt("/accounts"))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -29,10 +25,10 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountDeleteByUUID(uuid: String,
-      payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
+    payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}")
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -49,12 +45,12 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountDeleteByUsername(domainUri: String,
-      username: String,
-      payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
+    username: String,
+    payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/domains/{domain_uri}/accounts/{username}")
-        replaceAll ("\\{" + "domain_uri" + "\\}",domainUri.toString)
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "domain_uri" + "\\}", domainUri.toString)
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -73,10 +69,10 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountDeleteByUsernameFromDefaultDomain(username: String,
-      payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
+    payload: DeleteAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[DeleteAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/domains/default/accounts/{username}")
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -94,7 +90,7 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
 
   def accountGetAll()(implicit reader: ClientResponseReader[Accounts]): Future[Accounts] = {
     // create path and map variables
-    val path = addFmt("/accounts")
+    val path = (addFmt("/accounts"))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -108,11 +104,11 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountGetByUUID(uuid: String,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}")
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -121,8 +117,8 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
     if (uuid == null) throw new Exception("Missing required parameter 'uuid' when calling AccountApi->accountGetByUUID")
 
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
 
     val resFuture = client.submit("GET", path, queryParams.toMap, headerParams.toMap, "")
@@ -132,13 +128,13 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountGetByUsername(domainUri: String,
-      username: String,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
+    username: String,
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
     // create path and map variables
     val path = (addFmt("/domains/{domain_uri}/accounts/{username}")
-        replaceAll ("\\{" + "domain_uri" + "\\}",domainUri.toString)
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "domain_uri" + "\\}", domainUri.toString)
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -149,8 +145,8 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
     if (username == null) throw new Exception("Missing required parameter 'username' when calling AccountApi->accountGetByUsername")
 
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
 
     val resFuture = client.submit("GET", path, queryParams.toMap, headerParams.toMap, "")
@@ -160,11 +156,11 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountGetByUsernameFromDefaultDomain(username: String,
-      isCommitted: Option[Boolean] = None
-      )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
+    isCommitted: Option[Boolean] = None
+  )(implicit reader: ClientResponseReader[Account]): Future[Account] = {
     // create path and map variables
     val path = (addFmt("/domains/default/accounts/{username}")
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -173,8 +169,8 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
     if (username == null) throw new Exception("Missing required parameter 'username' when calling AccountApi->accountGetByUsernameFromDefaultDomain")
 
     isCommitted match {
-    case Some(param) => queryParams += "is_committed" -> param.toString
-    case _ => queryParams
+      case Some(param) => queryParams += "is_committed" -> param.toString
+      case _ => queryParams
     }
 
     val resFuture = client.submit("GET", path, queryParams.toMap, headerParams.toMap, "")
@@ -184,10 +180,10 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountUpdateByUUID(uuid: String,
-      payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
+    payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/accounts/{uuid}")
-        replaceAll ("\\{" + "uuid" + "\\}",uuid.toString))
+      replaceAll("\\{" + "uuid" + "\\}", uuid.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -204,12 +200,12 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountUpdateByUsername(domainUri: String,
-      username: String,
-      payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
+    username: String,
+    payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/domains/{domain_uri}/accounts/{username}")
-        replaceAll ("\\{" + "domain_uri" + "\\}",domainUri.toString)
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "domain_uri" + "\\}", domainUri.toString)
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
@@ -228,10 +224,10 @@ class AccountApi(client: TransportClient, config: SwaggerConfig) extends ApiClie
   }
 
   def accountUpdateByUsernameFromDefaultDomain(username: String,
-      payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
+    payload: UpdateAccountRequest)(implicit reader: ClientResponseReader[Message], writer: RequestWriter[UpdateAccountRequest]): Future[Message] = {
     // create path and map variables
     val path = (addFmt("/domains/default/accounts/{username}")
-        replaceAll ("\\{" + "username" + "\\}",username.toString))
+      replaceAll("\\{" + "username" + "\\}", username.toString))
 
     // query params
     val queryParams = new mutable.HashMap[String, String]
